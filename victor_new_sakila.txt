@@ -1,0 +1,162 @@
+//This is my restructuration of sakila database
+
+Table actor {
+  actor_id SMALLINT 
+  first_name VARCHAR(45)
+  last_name VARCHAR(45)
+  last_update TIMESTAMP
+  Indexes {
+    (actor_id) [pk]
+  }
+}
+
+
+Table film_actor {
+  actor_id SMALLINT
+  film_id SMALLINT
+  last_update TIMESTAMP
+  Indexes {
+    (actor_id, film_id) [pk]
+  }
+}
+
+Ref: actor.actor_id < film_actor.actor_id
+Ref: film_actor.film_id > film.film_id
+
+// Deleted "Country" and "City" tables and added them as a column in "Address"
+Table address {
+  address_id SMALLINT
+  address VARCHAR(50)
+  address2 VARCHAR(50)
+  district VARCHAR(20)
+  city VARCHAR(50)
+  country VARCHAR(50)
+  postal_code VARCHAR(10)
+  phone VARCHAR(20)
+  Indexes {
+    (address_id) [pk]
+  }
+}
+
+Ref: address.address_id - store.address_id
+Ref: address.address_id < customer.address_id
+Ref: address.address_id < staff.address_id
+
+Table customer {
+  customer_id SMALLINT
+  store_id TINYINT
+  first_name VARCHAR(45)
+  last_name VARCHAR(45)
+  email VARCHAR(50)
+  address_id SMALLINT
+  active BOOLEAN
+  create_date DATETIME
+  last_update TIMESTAMP
+  Indexes {
+    (customer_id) [pk]
+  }
+}
+
+Ref: customer.customer_id < rental.customer_id
+Ref: customer.customer_id < payment.customer_id
+
+// Deleted tables "Category" and "Film_category" and added the category as a column in film table
+// Deleted table "film_text" due to duplicated information with column "description"
+Table film {
+  film_id SMALLINT
+  title VARCHAR(128)
+  category_name VARCHAR(25)
+  description TEXT
+  release_year YEAR
+  original_language CHAR(20)
+  rental_duration TINYINT
+  rental_rate DECIMAL(4,2)
+  length SMALLINT
+  replacement_cost DECIMAL(5,2)
+  rating ENUM('G','PG','PG-13','R','NC-17')
+  special_features SET('Trailers','Commentaries','Deleted Scenes','Behind the Scenes')
+  last_update TIMESTAMP
+  Indexes {
+    (film_id) [pk]
+  }
+}
+
+Ref: film.film_id < inventory.film_id
+
+// Deleted language table and added as a column related with every copy
+Table inventory {
+  inventory_id MEDIUMINT
+  film_id SMALLINT
+  store_id TINYINT
+  language CHAR(20)
+  last_update TIMESTAMP
+  Indexes {
+    (inventory_id) [pk]
+  }
+}
+
+Ref: inventory.inventory_id < rental.inventory_id
+
+Table payment {
+  payment_id SMALLINT
+  customer_id SMALLINT
+  staff_id TINYINT
+  rental_id INT
+  amount DECIMAL(5,2)
+  payment_date DATETIME
+  last_update TIMESTAMP
+  Indexes {
+    (payment_id) [pk]
+  }
+}
+
+Table rental {
+  rental_id INT
+  rental_date DATETIME
+  inventory_id MEDIUMINT
+  customer_id SMALLINT
+  return_date DATETIME
+  staff_id TINYINT
+  last_update TIMESTAMP
+  Indexes {
+    (rental_id) [pk]
+  }
+}
+
+Ref: rental.rental_id - payment.rental_id
+
+Table staff {
+  staff_id TINYINT
+  first_name VARCHAR(45)
+  last_name VARCHAR(45)
+  address_id SMALLINT
+  picture BLOB
+  email VARCHAR(50)
+  store_id TINYINT
+  active BOOLEAN
+  username VARCHAR(16)
+  password VARCHAR(40)
+  last_update TIMESTAMP
+  Indexes {
+    (staff_id) [pk]
+  }
+}
+
+Ref: staff.staff_id < payment.staff_id
+Ref: staff.staff_id - store.manager_staff_id
+Ref: staff.staff_id < rental.staff_id
+
+Table store {
+  store_id TINYINT
+  manager_staff_id TINYINT
+  address_id SMALLINT
+  last_update TIMESTAMP
+  Indexes {
+    (store_id) [pk]
+  }
+}
+
+Ref: store.store_id < inventory.store_id
+Ref: store.store_id < staff.store_id
+Ref: store.store_id < customer.store_id
+
